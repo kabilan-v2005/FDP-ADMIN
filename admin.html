@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visitor Table</title>
+  <link rel="stylesheet" href="admin.css" />
+
+</head>
+<body>
+  <div class="container">
+    <div class="controls">
+      <input type="text" placeholder="Search box" class="search-box" />
+      <select class="filter-dropdown"></select>
+      <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>FDP/Industry Visit</th>
+            <th>Event Title</th>
+            <th>Days</th>
+            <th>Duration</th>
+            <th>Mode</th>
+            <th>Place</th>
+            <th>Upload Image</th>
+          </tr>
+        </thead>
+        <tbody id="data-body">
+          <!-- Dynamic data will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
