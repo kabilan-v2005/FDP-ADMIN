@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", async function () {
   const searchInput = document.querySelector(".search-box");
-  const filterDropdown = document.querySelector(".filter-dropdown");
   const tableBody = document.getElementById("data-body");
+  const suggestionsBox = document.querySelector(".suggestions");
+
+  let allNames = [];
 
   try {
     const res = await fetch("http://localhost:3001/api/fdp");
     const data = await res.json();
 
-    const namesSet = new Set(["ALL"]);
+    const namesSet = new Set();
 
     data.forEach(row => {
       const tr = document.createElement("tr");
@@ -17,7 +19,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         <td>${row["Event Title"]}</td>
         <td>${row["Days"]}</td>
         <td>${row["Date From"].slice(0, 10)} to ${row["Date To"].slice(0, 10)}</td>
-
         <td>${row["Mode"]}</td>
         <td>${row["Place"]}</td>
         <td>${row["Upload Image"]}</td>
@@ -26,41 +27,66 @@ document.addEventListener("DOMContentLoaded", async function () {
       namesSet.add(row["Staff Name"]);
     });
 
-    namesSet.forEach(name => {
-      const option = document.createElement("option");
-      option.value = name;
-      option.textContent = name;
-      filterDropdown.appendChild(option);
-    });
+    allNames = Array.from(namesSet);
 
     const filterTable = () => {
       const searchValue = searchInput.value.toLowerCase();
-      const selectedName = filterDropdown.value;
 
       [...tableBody.rows].forEach(row => {
         const rowName = row.cells[0].textContent.toLowerCase();
         const matchesSearch = rowName.includes(searchValue);
-        const matchesDropdown = selectedName === "ALL" || rowName === selectedName.toLowerCase();
-        row.style.display = (matchesSearch && matchesDropdown) ? "" : "none";
+        row.style.display = matchesSearch ? "" : "none";
       });
     };
 
-    searchInput.addEventListener("input", filterTable);
-    filterDropdown.addEventListener("change", filterTable);
+    const showSuggestions = (value) => {
+      suggestionsBox.innerHTML = "";
+
+      if (!value) return;
+
+      const filtered = allNames.filter(name =>
+        name.toLowerCase().includes(value.toLowerCase())
+      );
+
+      filtered.forEach(name => {
+        const div = document.createElement("div");
+        div.classList.add("suggestion-item");
+        div.textContent = name;
+
+        div.addEventListener("click", () => {
+          searchInput.value = name;
+          suggestionsBox.innerHTML = "";
+          filterTable();
+        });
+
+        suggestionsBox.appendChild(div);
+      });
+    };
+
+    searchInput.addEventListener("input", () => {
+      const value = searchInput.value.trim();
+      showSuggestions(value);
+      filterTable();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+        suggestionsBox.innerHTML = "";
+      }
+    });
+
   } catch (err) {
     console.error("Error fetching data:", err);
   }
 });
 
-// Export to Excel Function - FILTER AWARE
 function exportToExcel() {
   const table = document.getElementById("data-table");
-  const rows = Array.from(table.querySelectorAll("thead tr, tbody tr")); // include thead
+  const rows = Array.from(table.querySelectorAll("thead tr, tbody tr"));
 
   let csvContent = "";
 
   rows.forEach(row => {
-    // Skip hidden rows in tbody
     if (row.parentElement.tagName === "TBODY" && row.style.display === "none") return;
 
     const cols = Array.from(row.querySelectorAll("th, td"));

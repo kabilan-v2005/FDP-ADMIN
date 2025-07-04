@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Visitor Table</title>
   <link rel="stylesheet" href="admin.css" />
-
 </head>
 <body>
   <div class="container">
     <div class="controls">
-      <input type="text" placeholder="Search box" class="search-box" />
-      <select class="filter-dropdown"></select>
+      <!-- Wrap input + suggestions in a relative container -->
+      <div style="position: relative;">
+        <input type="text" placeholder="Search box" class="search-box" autocomplete="off" />
+        <div class="suggestions"></div>
+      </div>
       <button class="export-btn" onclick="exportToExcel()">Export to Excel</button>
     </div>
 
